@@ -2,6 +2,7 @@ import userModel from "../../../DB/models/user.model.js";
 import bcrypt from 'bcryptjs/dist/bcrypt.js'
 import jwt from "jsonwebtoken";
 import { registerSchema } from "./auth.validation.js";
+import { sendEmail } from "../../Utils/sendEmail.js";
 
 export const register = async (req, res) => {
     try {
@@ -13,7 +14,14 @@ export const register = async (req, res) => {
             return res.status(409).json({ message: 'email exists' });
         }
         const hashedPassword = bcrypt.hashSync(password, parseInt(process.env.SALTROUND));
-        
+        const html = `
+        <div>
+            <p>Dear : ${userName}</p>
+            <h1>Welcome</h1>
+            <p>Welcome to saraha</p>
+        </div>
+        `
+        sendEmail(email,'Saraha',html);
         await userModel.create({ userName, email, password: hashedPassword });
         return res.status(201).json({ message: "success" });
     } catch (err) {
